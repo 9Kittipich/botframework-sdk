@@ -68,12 +68,46 @@ const onTurnErrorHandler = async (context, error) => {
 adapter.onTurnError = onTurnErrorHandler;
 
 // Create the main dialog.
-const myBot = new EchoBot();
+const conversationReferences = {};
+// const bot = new ProactiveBot(conversationReferences);
+// Create the main dialog.
+const myBot = new EchoBot(conversationReferences);
 
 // Listen for incoming requests.
 server.post('/api/messages', async (req, res) => {
     // Route received a request to adapter for processing
     await adapter.process(req, res, (context) => myBot.run(context));
+});
+
+// Listen for incoming notifications and send proactive messages to users.
+server.get('/api/withdraw', async (req, res) => {
+    const echoBotInstance = new EchoBot(conversationReferences);
+
+    for (const conversationReference of Object.values(conversationReferences)) {
+        await adapter.continueConversationAsync(process.env.MicrosoftAppId, conversationReference, async context => {
+            await context.sendActivity({ attachments: [echoBotInstance.withdraw()] });
+        });
+    }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.writeHead(200);
+    res.write('<html><body><h1>Proactive messages have been sent.</h1></body></html>');
+    res.end();
+});
+
+server.get('/api/deposit', async (req, res) => {
+    const echoBotInstance = new EchoBot(conversationReferences);
+
+    for (const conversationReference of Object.values(conversationReferences)) {
+        await adapter.continueConversationAsync(process.env.MicrosoftAppId, conversationReference, async context => {
+            await context.sendActivity({ attachments: [echoBotInstance.deposit()] });
+        });
+    }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.writeHead(200);
+    res.write('<html><body><h1>Proactive messages have been sent.</h1></body></html>');
+    res.end();
 });
 
 // Listen for Upgrade requests for Streaming.

@@ -1,0 +1,78 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+const { ActivityHandler, MessageFactory } = require('botbuilder');
+
+class EchoBot extends ActivityHandler {
+    constructor() {
+        super();
+        // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
+        this.onMessage(async (context, next) => {
+            const replyText = `Echo: ${ context.activity.text }`;
+            await context.sendActivity(MessageFactory.text(replyText, replyText));
+            // By calling next() you ensure that the next BotHandler is run.
+            await next();
+        });
+
+        this.onMembersAdded(async (context, next) => {
+            const membersAdded = context.activity.membersAdded;
+            const welcomeText = 'Hello and welcome!';
+            for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
+                if (membersAdded[cnt].id !== context.activity.recipient.id) {
+                    await context.sendActivity(MessageFactory.text(welcomeText, welcomeText));
+                }
+            }
+            await next();
+        });
+    }
+}
+
+// getWelcomeCard() {
+    //     return CardFactory.receiptCard({
+    //         title: 'Welcome to the Bot!',
+    //         facts: [
+    //             { key: 'Name', value: 'User' },
+    //             { key: 'Status', value: 'Active' }
+    //         ],
+    //         items: [
+    //             {
+    //                 title: 'Bot Framework',
+    //                 subtitle: 'Welcome Card',
+    //                 text: 'Thank you for joining our bot!',
+    //                 image: { url: 'https://via.placeholder.com/150', alt: 'Bot Image' }
+    //             }
+    //         ],
+    //         total: 'Free'
+    //     });
+    // }
+
+    // guarantor() {
+    //     return CardFactory.thumbnailCard(
+    //         'รายการคำขอให้เป็นผู้ค้ำ',
+    //         'สมาชิกสหกรณ์ ชื่อนายนพรุจ ชูธรรมสิทธิกุล เลขที่สมาชิก 152420147 ได้ขอให้คุณเป็นผู้ค้ำสัญญาเงินกู้ ประเภทสามัญ',
+    //         ['https://example.com/thumbnail-image.png'],
+    //         [
+    //             {
+    //                 type: 'openUrl',
+    //                 title: 'ดูรายละเอียด',
+    //                 value: 'https://example.com'
+    //             }
+    //         ]
+    //     );
+    // }
+
+    // request() {
+    //     return CardFactory.thumbnailCard(
+    //         'รายการคำขอ',
+    //         'คำขอ ย้ายสหกรณ์  ของคุณ ไม่ผ่านการอนุมัติ (เนื่องจาก ยังไม่ได้ชำระหนี้ สัญญากู้สามัญ)',
+    //         ['https://example.com/thumbnail-image.png'],
+    //         [
+    //             {
+    //                 type: 'openUrl',
+    //                 title: 'ดูรายละเอียด',
+    //                 value: 'https://example.com'
+    //             }
+    //         ]
+    //     );
+    // }
+module.exports.EchoBot = EchoBot;
