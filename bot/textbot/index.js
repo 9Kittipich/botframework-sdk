@@ -110,6 +110,21 @@ server.get('/api/deposit', async (req, res) => {
     res.end();
 });
 
+server.get('/api/OpenOTP', async (req, res) => {
+    const echoBotInstance = new EchoBot(conversationReferences);
+
+    for (const conversationReference of Object.values(conversationReferences)) {
+        await adapter.continueConversationAsync(process.env.MicrosoftAppId, conversationReference, async context => {
+            await context.sendActivity({ attachments: [echoBotInstance.OpenOTP()] });
+        });
+    }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.writeHead(200);
+    res.write('<html><body><h1>Proactive messages have been sent.</h1></body></html>');
+    res.end();
+});
+
 // Listen for Upgrade requests for Streaming.
 server.on('upgrade', async (req, socket, head) => {
     // Create an adapter scoped to this WebSocket connection to allow storing session data.
